@@ -45,18 +45,10 @@ def preprocess(data):
     # Return the X and Y values.
     return X, Y
 
+# Preprocess the training, testing, and validation data.
 trainx, trainy = preprocess(train)
-valx, valy = preprocess(test)
 testx, testy = preprocess(val)
-
-model = LinearRegression()
-model.fit(trainx, trainy)
-
-# create predictions
-train_pred = model.predict(trainx)
-val_pred = model.predict(valx)
-test_pred = model.predict(testx)
-
+valx, valy = preprocess(test)
 
 '''
 Apply the standard linear regression. Your must return following metrics and the associ-
@@ -68,19 +60,24 @@ gression model only on the training data and reports metrics on the training set
 set, and test set.
 '''
 def eval_linear1(trainx, trainy, valx, valy, testx, testy):
+    # Initialize and fit the model using training data.
     model = LinearRegression()
     model.fit(trainx, trainy)
+
+    # Store the predictions from thr training, testing, and validation data.
     train_pred = model.predict(trainx)
     val_pred = model.predict(valx)
     test_pred = model.predict(testx)
-    train_rmse = np.sqrt(mean_squared_error(trainy, train_pred))
-    val_rmse = np.sqrt(mean_squared_error(valy, val_pred))
-    test_rmse = np.sqrt(mean_squared_error(testy, test_pred))
-    train_r2 = r2_score(trainy, train_pred)
-    val_r2 = r2_score(valy, val_pred)
-    test_r2 = r2_score(testy, test_pred)
-    return {'train-rmse': train_rmse, 'train-r2': train_r2, 'val-rmse': val_rmse, 'val-r2': val_r2, 'test-rmse': test_rmse, 'test-r2': test_r2}
 
+    # Return a dictionary for the metrics with their corresponding values.
+    return {
+        'train-rmse': np.sqrt(mean_squared_error(trainy, train_pred)),
+        'train-r2': r2_score(trainy, train_pred),
+        'val-rmse': np.sqrt(mean_squared_error(valy, val_pred)),
+        'val-r2': r2_score(valy, val_pred),
+        'test-rmse': np.sqrt(mean_squared_error(testy, test_pred)),
+        'test-r2': r2_score(testy, test_pred)
+    }
 
 output = eval_linear1(trainx, trainy, valx, valy, testx, testy)
 print(output)
