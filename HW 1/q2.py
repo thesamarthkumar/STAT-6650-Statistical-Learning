@@ -1,18 +1,45 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge, Lasso
 from sklearn.metrics import mean_squared_error, r2_score
-from IPython.display import display
-import matplotlib.pyplot as plt
-
-
-# Load the data 
-train = pd.read_csv('energy_train.csv')
-test = pd.read_csv('energy_test.csv')
-val = pd.read_csv('energy_val.csv')
 
 '''
+Main function to run the code.
+'''
+
+def main():
+    # Load the data 
+    train = pd.read_csv('energy_train.csv')
+    test = pd.read_csv('energy_test.csv')
+    val = pd.read_csv('energy_val.csv')
+
+    # Preprocess the data
+    trainx, trainy = preprocess(train)
+    valx, valy = preprocess(test)
+    testx, testy = preprocess(val)
+
+    # Evaluate the linear regression model for train, test, and validation data.
+    output_dict = eval_linear1(trainx, trainy, valx, valy, testx, testy)
+    print(f'2b) Eval Linear: \n{output_dict}')
+
+    # Apply ridge with alpha = 0.1
+    train_ridge, val_ridge, test_ridge = eval_ridge(trainx, trainy, valx, valy, testx, testy, 0.1)
+
+    # Apply lasso with alpha = 0.1
+    train_lasso, val_lasso, test_lasso = eval_lasso(trainx, trainy, valx, valy, testx, testy, 0.1)
+
+    # Reporting results with a table using different alpha values
+    report(trainx, trainy, valx, valy, testx, testy)
+
+    # Plotting coefficients for ridge and lasso.
+    plot_coefficients(trainx, trainy, 10)
+
+
+'''
+2b) 
 Function to preprocess the data.
 '''
 def preprocess(data):
@@ -45,31 +72,19 @@ def preprocess(data):
     # Return the X and Y values.
     return X, Y
 
-# Preprocess the training, testing, and validation data.
-trainx, trainy = preprocess(train)
-testx, testy = preprocess(val)
-valx, valy = preprocess(test)
 
 '''
-Apply the standard linear regression. Your must return following metrics and the associ-
-ated values are the numeric values (a dictonary for example: {‘train-rmse’: 10.2, ‘train-r2’:
-0.3, ‘val-rmse’: 7.2, ‘val-r2’: 0.2, ‘test-rmse’: 12.1, ‘test-r2’: 0.4}).
-You ou can write a function eval linear1(trainx, trainy, valx, valy, testx, testy) that takes
-in a training set, validation set, and test set, respectively, and trains a standard linear re-
-gression model only on the training data and reports metrics on the training set, validation
-set, and test set.
+2c)
+Apply standard linear regression. Return a dictionary with the metrtics and associated values.
 '''
 def eval_linear1(trainx, trainy, valx, valy, testx, testy):
-    # Initialize and fit the model using training data.
     model = LinearRegression()
     model.fit(trainx, trainy)
 
-    # Store the predictions from thr training, testing, and validation data.
     train_pred = model.predict(trainx)
     val_pred = model.predict(valx)
     test_pred = model.predict(testx)
 
-    # Return a dictionary for the metrics with their corresponding values.
     return {
         'train-rmse': np.sqrt(mean_squared_error(trainy, train_pred)),
         'train-r2': r2_score(trainy, train_pred),
@@ -79,14 +94,10 @@ def eval_linear1(trainx, trainy, valx, valy, testx, testy):
         'test-r2': r2_score(testy, test_pred)
     }
 
-output = eval_linear1(trainx, trainy, valx, valy, testx, testy)
-print(output)
-
 
 '''
-Apply ridge. Write a function eval ridge(trainx, trainy, valx, valy, testx, testy, alpha) that
-takes the regularization parameter, alpha, and trains a ridge regression model only on the
-training data.
+2d)
+Apply Ridge Regression.
 '''
 def eval_ridge(trainx, trainy, valx, valy, testx, testy, alpha):
     model = Ridge(alpha=alpha)
@@ -96,10 +107,10 @@ def eval_ridge(trainx, trainy, valx, valy, testx, testy, alpha):
     test_pred = model.predict(testx)
     return train_pred, val_pred, test_pred
 
+
 '''
-Apply lasso Write a function eval lasso(trainx, trainy, valx, valy, testx, testy, alpha) that
-takes the regularization parameter, alpha, and trains a lasso regression model only on the
-training data.
+2e)
+Apply Lasso Regression.
 '''
 def eval_lasso(trainx, trainy, valx, valy, testx, testy, alpha):
     model = Lasso(alpha=alpha)
@@ -109,12 +120,13 @@ def eval_lasso(trainx, trainy, valx, valy, testx, testy, alpha):
     test_pred = model.predict(testx)
     return train_pred, val_pred, test_pred
 
+
 '''
-Report (using a table) the RMSE and R2 for training, validation, and test for all the
-different λ values you tried. What would be the optimal parameter you would select based
-on the validation data performance?
+2f)
+Report (using a table) the RMSE and R2 for training, validation, and test for
+different λ values.
 '''
-def report(trainx, trainy, valx, valy, testx, testy, alphas):
+def report(trainx, trainy, valx, valy, testx, testy, alphas=[0.1, 1, 10, 100, 1000]):
     results = []
     for alpha in alphas:
         train_pred, val_pred, test_pred = eval_ridge(trainx, trainy, valx, valy, testx, testy, alpha)
@@ -128,23 +140,36 @@ def report(trainx, trainy, valx, valy, testx, testy, alphas):
     df = pd.DataFrame(results, columns=['Alpha', 'Train RMSE', 'Val RMSE', 'Test RMSE', 'Train R2', 'Val R2', 'Test R2'])
     display(df)
 
-alphas = [0.1, 1, 10, 100, 1000]
-report(trainx, trainy, valx, valy, testx, testy, alphas)
-
 
 '''
+2g)
 Generate the coefficient path plots (regularization value vs. coefficient value) for both ridge
-and lasso. Make sure that your plots encompass all the expected behavior (coefficients
-should shrink towards 0).
+and lasso models. 
 '''
-def plot_coefficients(trainx, trainy, alpha, model):
-    model = model(alpha=alpha)
-    model.fit(trainx, trainy)
-    plt.plot(model.coef_)
-    plt.xlabel('Coefficient Index')
-    plt.ylabel('Coefficient Value')
-    plt.title('Coefficient Path')
+def plot_coefficients(trainx, trainy, alpha):
+
+    _, ax = plt.subplots(1,2, figsize=(10, 5))
+    
+    # Ridge
+    ridge_model = Ridge(alpha=alpha)
+    ridge_model.fit(trainx, trainy)
+    ax[0].plot(ridge_model.coef_, 'b')
+    ax[0].set_xlabel('Coefficient Index')
+    ax[0].set_ylabel('Coefficient Value')
+    ax[0].set_title('Ridge Coefficient Path')
+
+    # Lasso
+    lasso_model = Lasso(alpha=alpha)
+    lasso_model.fit(trainx, trainy)
+    ax[1].plot(lasso_model.coef_, 'r')
+    ax[1].set_xlabel('Coefficient Index')
+    ax[1].set_ylabel('Coefficient Value')
+    ax[1].set_title('Lasso Coefficient Path')
+
     plt.show()
 
-plot_coefficients(trainx, trainy, 100, Ridge)
-
+'''
+Execute the main function.
+'''
+if __name__ == '__main__':
+    main()
