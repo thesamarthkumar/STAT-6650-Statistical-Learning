@@ -103,12 +103,10 @@ class DecisionTreeClassifier:
 
     def predict(self, xTest):
         """Predict classes for multiple samples."""
-        yPred = np.empty(xTest.shape[0])
 
-        for row in xTest:
-            yPred = np.append(yPred, self._predict_single(row, self.tree))
+        
 
-        return yPred.reshape(-1, 1)
+        return np.array([self._predict_single(row, self.tree) for row in xTest]).reshape(-1, 1)
 
 # Fetch dataset
 wine_quality = fetch_ucirepo(id=186)
@@ -124,6 +122,9 @@ y = y.to_numpy()
 # Convert quality scores into binary classification
 y = np.where(y >= 6, 1, 0).reshape(-1, 1)  # Good quality (1) if ≥6, else Bad (0)
 
+
+# Random seed
+np.random.seed(42)
 # Split into training (80%) and testing (20%)
 indices = np.random.permutation(len(xFeat))
 split_idx = int(0.8 * len(xFeat))
