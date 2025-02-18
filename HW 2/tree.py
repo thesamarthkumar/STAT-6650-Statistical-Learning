@@ -91,6 +91,7 @@ class DecisionTreeClassifier:
         
         return self.tree  # Important: Return the root node
 
+    # (b) Defining the predict function.
     def _predict_single(self, row, node):
         """Traverse the tree to classify a single sample."""
         if node.prediction is not None:
@@ -137,9 +138,179 @@ xTest, yTest = xFeat[test_idx], y[test_idx]
 dt = DecisionTreeClassifier()
 dt.train(xTrain, yTrain)
 
-# Predict on Test Data
+# Predict on Test and Train Data
 yPred = dt.predict(xTest)
+yTrainPred = dt.predict(xTrain)
 
-# Compute Accuracy
+# Compute Test and Train Accuracy
 accuracy = np.mean(yPred == yTest)
-print(f"Accuracy: {accuracy * 100:.2f}%")
+train_accuracy = np.mean(yTrainPred == yTrain)  
+print(f"Train Accuracy: {train_accuracy * 100:.2f}%")
+print(f"Test Accuracy: {accuracy * 100:.2f}%")
+
+'''
+Train Accuracy: 73.93%
+Test Accuracy: 73.31%
+'''
+
+# Visualize the Decision Tree
+def print_tree(node, depth=0):
+    """Recursively prints the decision tree structure."""
+    if node is None:
+        return
+
+    # Print leaf nodes
+    if node.prediction is not None:
+        print(f"{'  ' * depth}--> Predict: {node.prediction}")
+        return
+
+    # Print decision nodes
+    print(f"{'  ' * depth}[Feature {node.feature} <= {node.threshold}]?")
+    print(f"{'  ' * depth}--> True:")
+    print_tree(node.left, depth + 1)
+    print(f"{'  ' * depth}--> False:")
+    print_tree(node.right, depth + 1)
+
+# Call the function to print the trained tree
+print_tree(dt.tree)
+
+'''
+Output:
+
+[Feature 10 <= 10.1]?
+--> True:
+  [Feature 1 <= 0.27]?
+  --> True:
+    [Feature 1 <= 0.22]?
+    --> True:
+      [Feature 9 <= 0.48]?
+      --> True:
+        [Feature 3 <= 4.5]?
+        --> True:
+          [Feature 1 <= 0.18]?
+          --> True:
+            [Feature 5 <= 27.0]?
+            --> True:
+              [Feature 7 <= 0.99112]?
+              --> True:
+                --> Predict: 1
+              --> False:
+                [Feature 8 <= 3.21]?
+                --> True:
+                --> True:
+                  --> Predict: 0
+                --> False:
+                --> True:
+                  --> Predict: 0
+                --> True:
+                --> True:
+                  --> Predict: 0
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                --> True:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> True:
+                --> True:
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+            --> False:
+                --> True:
+                  --> Predict: 0
+                --> False:
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+            --> False:
+              --> Predict: 1
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+            --> False:
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> False:
+                  --> Predict: 0
+            --> False:
+                --> True:
+                  --> Predict: 0
+                --> False:
+                --> True:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> True:
+                  --> Predict: 0
+                --> True:
+                --> True:
+                  --> Predict: 0
+                  --> Predict: 0
+                --> False:
+                --> False:
+                  --> Predict: 0
+            --> False:
+              --> Predict: 1
+          --> False:
+            --> Predict: 1
+        --> False:
+          --> Predict: 1
+      --> False:
+        --> Predict: 1
+    --> False:
+      --> Predict: 1
+  --> False:
+    --> Predict: 0
+--> False:
+  --> Predict: 1
+
+'''
