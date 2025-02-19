@@ -104,9 +104,6 @@ class DecisionTreeClassifier:
 
     def predict(self, xTest):
         """Predict classes for multiple samples."""
-
-        
-
         return np.array([self._predict_single(row, self.tree) for row in xTest]).reshape(-1, 1)
 
 # Fetch dataset
