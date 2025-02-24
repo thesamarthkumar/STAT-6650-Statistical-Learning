@@ -74,18 +74,21 @@ print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {ela
 '''
 (c) Monte Carlo Cross Validation
 '''
-def monte_carlo(model, xFeat, y, k):
+def monte_carlo(model, xFeat, y, k, test_size=0.3):
+    train_auc_list = []
+    test_auc_list = []
     start = time.time()
-    xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=0.7, random_state=np.random.randint(0,10000))
-    model.fit(xTrain, yTrain)
-    train_pred = model.predict_proba(xTrain)[:, -1]
-    test_pred = model.predict_proba(xTest)[:, -1]
-    train_auc = roc_auc_score(yTrain, train_pred)
-    test_auc = roc_auc_score(yTest, test_pred)
+    for i in range(k):
+        xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=test_size, random_state=np.random.randint(0, 10000))
+        model.fit(xTrain, yTrain)
+        train_pred = model.predict_proba(xTrain)[:, -1]
+        test_pred = model.predict_proba(xTest)[:, -1]
+        train_auc_list.append(roc_auc_score(yTrain, train_pred))
+        test_auc_list.append(roc_auc_score(yTest, test_pred))
     elapsed = time.time() - start
-    return train_auc, test_auc, elapsed
+    return np.mean(train_auc_list), np.mean(test_auc_list), elapsed
 
-# Call the monte_carlo function, using k=5 for 5-fold CV.
+# Call the monte_carlo function, using k=5 and test_size of 0.3 for a 70/30 split.
 train_auc, test_auc, elapsed_time = monte_carlo(model, xFeat, y, 5)
 print(f'Monte Carlo Cross-Validation Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds')
