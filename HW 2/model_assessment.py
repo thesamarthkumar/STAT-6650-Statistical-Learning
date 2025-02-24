@@ -34,19 +34,19 @@ model = DecisionTreeClassifier(max_depth = 10, min_samples_split = 5)
 '''
 (a) Holdout Method
 '''
-def holdout(model, xFeat, y, test_size): 
+def holdout(model, xFeat, y, testSize): 
     start = time.time()
-    xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=test_size)
+    xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=testSize)
     model.fit(xTrain, yTrain)
     train_pred = model.predict_proba(xTrain)[:, -1]
     test_pred = model.predict_proba(xTest)[:, -1]
     train_auc = roc_auc_score(yTrain, train_pred)
     test_auc = roc_auc_score(yTest, test_pred)
-    elapsed = time.time() - start
-    return train_auc, test_auc, elapsed
+    timeElapsed = time.time() - start
+    return train_auc, test_auc, timeElapsed
 
 # Call the holdout function, using test_size of 0.3 for a 70/30 split.
-train_auc, test_auc, elapsed_time = holdout(model, xFeat, y, 0.3)
+train_auc, test_auc, timeElapsed = holdout(model, xFeat, y, 0.3)
 print(f'Holdout Method Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds \n')
 
@@ -65,21 +65,21 @@ def kfold(model, xFeat, y, k):
         test_auc = roc_auc_score(y_test, model.predict_proba(X_test)[:,-1])
         train_sum += train_auc
         test_sum += test_auc
-    elapsed = time.time() - start
-    return train_sum/k, test_sum/k, elapsed
+    timeElapsed = time.time() - start
+    return train_sum/k, test_sum/k, timeElapsed
 
 # Call the kfold function, using k=5 for 5-fold CV.
-train_auc, test_auc, elapsed_time = kfold(model, xFeat, y, 5)
+train_auc, test_auc, timeElapsed = kfold(model, xFeat, y, 5)
 print(f'K-Fold Cross-Validation Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds \n')
 
 '''
 (c) Monte Carlo Cross Validation
 '''
-def monte_carlo(model, xFeat, y, k, test_size=0.3):
+def monte_carlo(model, xFeat, y, testSize, s):
     train_sum, test_sum = 0.0, 0.0
     start = time.time()
-    for i in range(k):
+    for i in range(s):
         rand_state = np.random.randint(0,10000))
         xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=test_size, random_state=rand_state)
         model.fit(xTrain, yTrain)
@@ -87,11 +87,11 @@ def monte_carlo(model, xFeat, y, k, test_size=0.3):
         test_pred = model.predict_proba(xTest)[:, -1]
         train_sum += roc_auc_score(yTrain, train_pred)
         test_sum += roc_auc_score(yTest, test_pred)
-    elapsed = time.time() - start
-    return train_sum/k, test_sum/k, elapsed
+    timeElapsed = time.time() - start
+    return train_sum/s, test_sum/s, timeElapsed
 
-# Call the monte_carlo function, using k=5 and test_size of 0.3 for a 70/30 split.
-train_auc, test_auc, elapsed_time = monte_carlo(model, xFeat, y, 5)
+# Call the monte_carlo function, using s=5 and testSize of 0.3 for a 70/30 split.
+train_auc, test_auc, timeElapsed = monte_carlo(model, xFeat, y, 0.3, 5)
 print(f'Monte Carlo Cross-Validation Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds')
 
