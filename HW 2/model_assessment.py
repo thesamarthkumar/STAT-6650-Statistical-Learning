@@ -1,7 +1,6 @@
 import time
 import numpy as np
 import pandas as pd
-from IPython.display import display
 from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.metrics import roc_auc_score
@@ -68,8 +67,8 @@ def kfold(model, xFeat, y, k):
     timeElapsed = time.time() - start
     return train_sum/k, test_sum/k, timeElapsed
 
-# Call the kfold function, using k=5 for 5-fold CV.
-train_auc, test_auc, timeElapsed = kfold(model, xFeat, y, 5)
+# Call the kfold function, using k=10 for 10-fold CV.
+train_auc, test_auc, timeElapsed = kfold(model, xFeat, y, 10)
 print(f'K-Fold Cross-Validation Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {timeElapsed:.2f} seconds \n')
 
@@ -90,10 +89,22 @@ def monte_carlo(model, xFeat, y, testSize, s):
     timeElapsed = time.time() - start
     return train_sum/s, test_sum/s, timeElapsed
 
-# Call the monte_carlo function, using s=5 and testSize of 0.3 for a 70/30 split.
-train_auc, test_auc, timeElapsed = monte_carlo(model, xFeat, y, 0.3, 5)
+# Call the monte_carlo function, using s = 50 iterations and testSize of 0.3 for a 70/30 split.
+train_auc, test_auc, timeElapsed = monte_carlo(model, xFeat, y, 0.3, 50)
 print(f'Monte Carlo Cross-Validation Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {timeElapsed:.2f} seconds')
+
+'''
+RESULTS:
+Holdout Method Results:
+Train AUC: 0.9543, Test AUC: 0.7525, Elapsed Time: 0.02 seconds 
+
+K-Fold Cross-Validation Results:
+Train AUC: 0.9461, Test AUC: 0.7855, Elapsed Time: 0.27 seconds 
+
+Monte Carlo Cross-Validation Results:
+Train AUC: 0.9525, Test AUC: 0.7747, Elapsed Time: 0.95 seconds
+'''
 
 '''
 TO DO:
