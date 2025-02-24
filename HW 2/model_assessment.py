@@ -48,7 +48,7 @@ def holdout(model, xFeat, y, testSize):
 # Call the holdout function, using test_size of 0.3 for a 70/30 split.
 train_auc, test_auc, timeElapsed = holdout(model, xFeat, y, 0.3)
 print(f'Holdout Method Results:')
-print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds \n')
+print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {timeElapsed:.2f} seconds \n')
 
 '''
 (b) K-Fold Cross Validation
@@ -71,7 +71,7 @@ def kfold(model, xFeat, y, k):
 # Call the kfold function, using k=5 for 5-fold CV.
 train_auc, test_auc, timeElapsed = kfold(model, xFeat, y, 5)
 print(f'K-Fold Cross-Validation Results:')
-print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds \n')
+print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {timeElapsed:.2f} seconds \n')
 
 '''
 (c) Monte Carlo Cross Validation
@@ -80,8 +80,8 @@ def monte_carlo(model, xFeat, y, testSize, s):
     train_sum, test_sum = 0.0, 0.0
     start = time.time()
     for i in range(s):
-        rand_state = np.random.randint(0,10000))
-        xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=test_size, random_state=rand_state)
+        rand_state = np.random.randint(0,10000)
+        xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=testSize, random_state=rand_state)
         model.fit(xTrain, yTrain)
         train_pred = model.predict_proba(xTrain)[:, -1]
         test_pred = model.predict_proba(xTest)[:, -1]
@@ -93,12 +93,10 @@ def monte_carlo(model, xFeat, y, testSize, s):
 # Call the monte_carlo function, using s=5 and testSize of 0.3 for a 70/30 split.
 train_auc, test_auc, timeElapsed = monte_carlo(model, xFeat, y, 0.3, 5)
 print(f'Monte Carlo Cross-Validation Results:')
-print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds')
+print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {timeElapsed:.2f} seconds')
 
 '''
 TO DO:
 - Complete part (d).
 - Formatting. Consistency throughout the entire code.
 '''
-
-
