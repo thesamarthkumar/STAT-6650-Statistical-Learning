@@ -21,7 +21,9 @@ xFeat = X.to_numpy()
 # y is an n x 1 array.
 y = y.to_numpy().ravel()
 
-# Convert quality scores into binary classification (Good quality (1) if ≥6, else Bad (0))
+# Convert quality scores into binary classification.
+# Good Quality (1) when y is at least 6.
+# Bad Quality (0) when 0 < y <= 5.
 y = np.where(y >= 6, 1, 0)
 
 '''
@@ -75,20 +77,28 @@ print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {ela
 (c) Monte Carlo Cross Validation
 '''
 def monte_carlo(model, xFeat, y, k, test_size=0.3):
-    train_auc_list = []
-    test_auc_list = []
+    train_sum, test_sum = 0.0, 0.0
     start = time.time()
     for i in range(k):
-        xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=test_size, random_state=np.random.randint(0, 10000))
+        rand_state = np.random.randint(0,10000))
+        xTrain, xTest, yTrain, yTest = train_test_split(xFeat, y, test_size=test_size, random_state=rand_state)
         model.fit(xTrain, yTrain)
         train_pred = model.predict_proba(xTrain)[:, -1]
         test_pred = model.predict_proba(xTest)[:, -1]
-        train_auc_list.append(roc_auc_score(yTrain, train_pred))
-        test_auc_list.append(roc_auc_score(yTest, test_pred))
+        train_sum += roc_auc_score(yTrain, train_pred)
+        test_sum += roc_auc_score(yTest, test_pred)
     elapsed = time.time() - start
-    return np.mean(train_auc_list), np.mean(test_auc_list), elapsed
+    return train_sum/k, test_sum/k, elapsed
 
 # Call the monte_carlo function, using k=5 and test_size of 0.3 for a 70/30 split.
 train_auc, test_auc, elapsed_time = monte_carlo(model, xFeat, y, 5)
 print(f'Monte Carlo Cross-Validation Results:')
 print(f'Train AUC: {train_auc:.4f}, Test AUC: {test_auc:.4f}, Elapsed Time: {elapsed_time:.2f} seconds')
+
+'''
+TO DO:
+- Complete part (d).
+- Formatting. Consistency throughout the entire code.
+'''
+
+
