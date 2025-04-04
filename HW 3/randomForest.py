@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from collections import Counter
 from sklearn.preprocessing import LabelEncoder 
 
 '''
@@ -74,7 +73,7 @@ class RandomForest:
         # Majority vote for each sample
         finalPredictions = []
         for row in predictions:
-            vote = Counter(row).most_common(1)[0][0]
+            vote = np.bincount(row).argmax()
             finalPredictions.append(vote)
         
         return np.array(finalPredictions)
